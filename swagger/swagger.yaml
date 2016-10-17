@@ -14,7 +14,7 @@ info:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 host: "petstore.swagger.io"
-basePath: "/v2"
+basePath: "/"
 tags:
 - name: "pet"
   description: "Everything about your Pets"
@@ -31,6 +31,24 @@ tags:
 schemes:
 - "http"
 paths:
+  /:
+    get:
+      tags:
+      - "status"
+      summary: "health status"
+      description: "health status"
+      operationId: "controllers.health_controller.get_status"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "happy status"
+          schema:
+            type: "string"
+        400:
+          description: "Invalid status value"
+      x-tags:
+      - tag: "status"
   /pet:
     post:
       tags:

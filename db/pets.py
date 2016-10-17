@@ -1,6 +1,6 @@
 import sqlite3
 
-from . import dbfunctions
+from db import dbfunctions
 
 dbfunctions.dbsetup()
 
