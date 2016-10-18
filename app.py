@@ -4,7 +4,7 @@ import connexion
 import sys
 
 if __name__ == '__main__':
-    app = connexion.App(__name__, specification_dir='./swagger/')
+    app = connexion.App(__name__, specification_dir='./swagger/', server='gevent')
     app.add_api('swagger.yaml', arguments={
         'title':
         'This is a sample server Petstore server.  You can find out more about '
@@ -17,5 +17,5 @@ if __name__ == '__main__':
         print "You must also pass in the port as the first and only arg!"
         sys.exit(1)
     else:
-        port = sys.argv[1]
-    app.run(port=port)
+        port = int(sys.argv[1])
+    app.run(host='0.0.0.0', port=port)
