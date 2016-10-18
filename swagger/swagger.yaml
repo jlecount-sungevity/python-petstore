@@ -34,7 +34,7 @@ paths:
   /:
     get:
       tags:
-      - "status"
+      - "health_status"
       summary: "health status"
       description: "health status"
       operationId: "controllers.health_controller.get_status"
@@ -48,7 +48,7 @@ paths:
         400:
           description: "Invalid status value"
       x-tags:
-      - tag: "status"
+      - tag: "health_status"
   /pet:
     post:
       tags:
@@ -627,7 +627,7 @@ paths:
 securityDefinitions:
   api_key:
     type: "apiKey"
-    name: "api_key"
+    name: "token"
     in: "header"
   petstore_auth:
     type: "oauth2"
