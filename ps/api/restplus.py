@@ -2,7 +2,7 @@ import logging
 import traceback
 
 from flask_restplus import Api
-from petstore import settings
+from ps import settings
 from sqlalchemy.orm.exc import NoResultFound
 
 log = logging.getLogger(__name__)

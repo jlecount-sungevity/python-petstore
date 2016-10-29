@@ -2,15 +2,15 @@ import logging
 
 from flask import request
 from flask_restplus import Resource
-from petstore.api.blog.business import create_blog_post, update_post, delete_post
-from petstore.api.blog.serializers import blog_post, page_of_blog_posts
-from petstore.api.blog.parsers import pagination_arguments
-from petstore.api.restplus import api
-from petstore.database.models import Post
+from ps.api.petstore.business import create_blog_post, update_post, delete_post
+from ps.api.petstore.serializers import blog_post, page_of_blog_posts
+from ps.api.petstore.parsers import pagination_arguments
+from ps.api.restplus import api
+from ps.database.models import Post
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('api/users', description='Operations related to user mgmt')
+ns = api.namespace('blog/posts', description='Operations related to blog posts')
 
 
 @ns.route('/')

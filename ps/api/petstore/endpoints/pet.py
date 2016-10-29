@@ -2,18 +2,27 @@ import logging
 
 from flask import request
 from flask_restplus import Resource
-from petstore.api.blog.business import create_category, delete_category, update_category
-from petstore.api.blog.serializers import category, category_with_posts
-from petstore.api.restplus import api
-from petstore.database.models import Category
+from ps.api.petstore.business import create_category, delete_category, update_category
+from ps.api.petstore.serializers import category, category_with_posts
+from ps.api.restplus import api
+from ps.database.models import Category
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('blog/categories', description='Operations related to blog categories')
+ns = api.namespace('api/pet', description='Operations related to the pet CRUD '
+                                      'actions')
 
 
-@ns.route('/')
-class CategoryCollection(Resource):
+@ns.route('/<int:id>')
+class PetById(Resource):
+
+
+    @api.marshal_with(category_with_posts)
+    def get(self, id):
+        """
+        Returns a category with a list of posts.
+        """
+        return Category.query.filter(Category.id == id).one()
 
     @api.marshal_list_with(category)
     def get(self):

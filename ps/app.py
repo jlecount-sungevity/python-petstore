@@ -1,12 +1,9 @@
 import logging.config
 
 from flask import Flask, Blueprint
-from petstore import settings
-from petstore.api.petstore.endpoints.users import ns as users_namespace
-from petstore.api.petstore.endpoints.store import ns as store_namespace
-from petstore.api.petstore.endpoints.health import ns as healthcheck_namespace
-from petstore.api.restplus import api
-from petstore.database import db
+from ps import settings
+from ps.database import db
+from ps.api.restplus import api
 
 app = Flask(__name__)
 logging.config.fileConfig('logging.conf')
@@ -28,6 +25,9 @@ def initialize_app(flask_app):
 
     blueprint = Blueprint('api', __name__, url_prefix='/')
     api.init_app(blueprint)
+    from ps.api.petstore.endpoints.users import ns as users_namespace
+    #from ps.api.petstore.endpoints.store import ns as store_namespace
+    from ps.api.petstore.endpoints.health import ns as healthcheck_namespace
     api.add_namespace(users_namespace)
     api.add_namespace(users_namespace)
     api.add_namespace(healthcheck_namespace)
@@ -38,7 +38,7 @@ def initialize_app(flask_app):
 
 def main():
     initialize_app(app)
-    log.info('>>>>> Starting development server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
+    log.info('>>>>> Starting development server at http://{}/ <<<<<'.format(app.config['SERVER_NAME']))
     app.run(debug=settings.FLASK_DEBUG)
 
 if __name__ == "__main__":
