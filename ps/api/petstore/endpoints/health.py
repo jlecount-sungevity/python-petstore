@@ -2,7 +2,7 @@ import logging
 import random
 import traceback
 
-from flask import request
+import flask
 from flask_restplus import Resource
 from ps.api.restplus import api
 from ps.database.models import Quote, db
@@ -35,7 +35,10 @@ class HealthStatus(Resource):
         """
 
         try:
-            return random.choice(self.quotes).text
+            output = {
+                'salutation' : random.choice(self.quotes).text
+            }
+            return flask.jsonify(output)
         except:
             traceback.print_exc()
 
