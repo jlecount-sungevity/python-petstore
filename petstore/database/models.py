@@ -36,6 +36,12 @@ class Category(db.Model):
     name = db.Column(db.String(100))
 
 
+class Quote(db.Base):
+    __tablename__ = 'quotes'
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(120))
+
+
 class UserStatus(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(100))

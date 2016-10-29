@@ -2,8 +2,9 @@ import logging.config
 
 from flask import Flask, Blueprint
 from petstore import settings
-from petstore.api.blog.endpoints.posts import ns as blog_posts_namespace
-from petstore.api.blog.endpoints.categories import ns as blog_categories_namespace
+from petstore.api.petstore.endpoints.users import ns as users_namespace
+from petstore.api.petstore.endpoints.store import ns as store_namespace
+from petstore.api.petstore.endpoints.health import ns as healthcheck_namespace
 from petstore.api.restplus import api
 from petstore.database import db
 
@@ -25,10 +26,11 @@ def configure_app(flask_app):
 def initialize_app(flask_app):
     configure_app(flask_app)
 
-    blueprint = Blueprint('api', __name__, url_prefix='/api')
+    blueprint = Blueprint('api', __name__, url_prefix='/')
     api.init_app(blueprint)
-    api.add_namespace(blog_posts_namespace)
-    api.add_namespace(blog_categories_namespace)
+    api.add_namespace(users_namespace)
+    api.add_namespace(users_namespace)
+    api.add_namespace(healthcheck_namespace)
     flask_app.register_blueprint(blueprint)
 
     db.init_app(flask_app)
