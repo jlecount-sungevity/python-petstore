@@ -1,5 +1,0 @@
-#!/bin/bash -e
-
-source /home/jlecount/.local/bin/virtualenvwrapper.sh
-workon petstore
-python ./app.py 80

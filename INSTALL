@@ -1,9 +1,0 @@
-sudo apt install python-pip
-sudo pip install virtualenv virtualenvwrapper
-source $HOME/.local/bin/virtualenvwrapper.sh
-mkvirtualenv petstore
-add2virtualenv .
-pip install -U connexion
-pip install gevent
-python db/pets.py
-python db/expressions.py
