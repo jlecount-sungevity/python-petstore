@@ -55,16 +55,16 @@ class User(Resource):
     @api.response(204, 'Post successfully updated.')
     def put(self, id):
         """
-        Updates a blog post.
+        Updates a user.
         """
         data = request.json
         update_user(id, data)
         return None, 204
 
-    @api.response(204, 'Post successfully deleted.')
+    @api.response(204, 'User successfully deleted.')
     def delete(self, id):
         """
-        Deletes blog post.
+        Deletes a user.
         """
         delete_user(id)
         return None, 204
