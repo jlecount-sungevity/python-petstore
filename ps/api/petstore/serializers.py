@@ -1,13 +1,14 @@
 from flask_restplus import fields
 from ps.api.restplus import api
 
-blog_post = api.model('Blog post', {
-    'id': fields.Integer(readOnly=True, description='The unique identifier of a blog post'),
-    'title': fields.String(required=True, description='Article title'),
-    'body': fields.String(required=True, description='Article content'),
-    'pub_date': fields.DateTime,
-    'category_id': fields.Integer(attribute='category.id'),
-    'category': fields.String(attribute='category.id'),
+user = api.model('User', {
+    'id': fields.Integer(readOnly=True, description='The unique identifier of a user'),
+    'username': fields.String(required=True, description='username'),
+    'first_name': fields.String(required=True, description='first name'),
+    'last_name': fields.String(required=True, description='last name'),
+    'email': fields.String(required=True, description='email'),
+    'phone': fields.String(required=True, description='phone'),
+    'status': fields.String(required=True, attribute='status.id'),
 })
 
 pagination = api.model('A page of results', {
@@ -17,15 +18,7 @@ pagination = api.model('A page of results', {
     'total': fields.Integer(description='Total number of results'),
 })
 
-page_of_blog_posts = api.inherit('Page of blog posts', pagination, {
-    'items': fields.List(fields.Nested(blog_post))
-})
-
 category = api.model('Blog category', {
     'id': fields.Integer(readOnly=True, description='The unique identifier of a blog category'),
     'name': fields.String(required=True, description='Category name'),
-})
-
-category_with_posts = api.inherit('Blog category with posts', category, {
-    'posts': fields.List(fields.Nested(blog_post))
 })

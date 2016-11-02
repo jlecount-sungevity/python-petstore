@@ -1,4 +1,4 @@
-from ps.database import db
+from ps.app import db
 
 
 def create_pet(data):

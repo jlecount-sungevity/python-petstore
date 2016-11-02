@@ -1,4 +1,4 @@
-from ps.database import db
+from ps.app import db
 
 
 class PhotoURL(db.Model):
@@ -45,8 +45,6 @@ class Quote(db.Model):
 class UserStatus(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(100))
-    parent_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    #parent = db.Column(db.Integer, db.ForeignKey('user'))
 
 
 class User(db.Model):
@@ -57,7 +55,7 @@ class User(db.Model):
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
     phone = db.Column(db.String(100))
-    status = db.relationship("UserStatus", uselist=False)
+    status = db.Column(db.ForeignKey('user_status.id'))
 
 
 class Pet(db.Model):

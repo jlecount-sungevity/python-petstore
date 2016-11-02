@@ -1,11 +1,12 @@
 import logging.config
 
 from flask import Flask, Blueprint
+from flask.ext.sqlalchemy import SQLAlchemy
 from ps import settings
-from ps.database import db
 from ps.api.restplus import api
 
 app = Flask(__name__)
+db = SQLAlchemy()
 logging.config.fileConfig('logging.conf')
 log = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ def initialize_app(flask_app):
     flask_app.register_blueprint(blueprint)
 
     db.init_app(flask_app)
+    flask_app
 
 
 def main():
