@@ -3,14 +3,14 @@ import traceback
 
 from flask import request
 from flask_restplus import Resource
-from ps.api.petstore.business import update_user_name, delete_user
+from ps.api.petstore.business import update_user, delete_user
 from ps.api.petstore.serializers import user
 from ps.api.restplus import api
 from ps.database import models
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('api/users', description='Operations related to user mgmt')
+ns = api.namespace('users', description='Operations related to user mgmt')
 
 
 @ns.route('/<int:id>')
@@ -22,19 +22,16 @@ class User(Resource):
         """
         Returns a user
         """
-        try:
-            return models.User.query.filter(models.User.id == id).one()
-        except:
-            traceback.print_exc()
+        return models.User.query.filter(models.User.id == id).one()
 
     @api.expect(user)
-    @api.response(204, 'Post successfully updated.')
+    @api.response(204, 'User successfully updated.')
     def put(self, id):
         """
         Updates a user.
         """
         data = request.json
-        update_user_name(id, data)
+        update_user(id, data)
         return None, 204
 
     @api.response(204, 'User successfully deleted.')

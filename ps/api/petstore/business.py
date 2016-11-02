@@ -1,4 +1,6 @@
 from ps.app import db
+from ps.database.models import UserStatus
+from flask_restplus import abort
 
 
 def create_pet(data):
@@ -43,10 +45,51 @@ def create_user(data):
     db.session.commit()
 
 
-def update_user_name(user_id, data):
+def update_user(user_id, data):
     from ps.database.models import User
     user= User.query.filter(User.id == user_id).one()
-    user.name = data.get('name')
+
+    em = data.get('email')
+    if em:
+        user.email = em
+
+    fn = data.get('first_name')
+    if fn:
+        user.first_name = fn
+
+    ln = data.get('last_name')
+    if ln:
+        user.first_name = ln
+
+    username = data.get('username')
+    if username:
+        user.username = username
+
+    status = data.get('status')
+    if status:
+        try:
+            st = UserStatus.query.filter(UserStatus.status == status).one()
+            user.status = st.id
+        except:
+            all_statuses = [s.status for s in UserStatus.query.all()]
+            abort(422, message=\
+            "No such status: {0}.  Valid statuses are: {1}".format(
+                    status,
+                    ','.join(all_statuses)
+                )
+            )
+
+    if username:
+        user.username = username
+
+    pw = data.get('password')
+    if pw:
+        user.password = pw
+
+    phone = data.get('phone')
+    if phone:
+        user.phone = phone
+
     db.session.add(user)
     db.session.commit()
 
