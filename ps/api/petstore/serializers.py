@@ -17,8 +17,3 @@ pagination = api.model('A page of results', {
     'per_page': fields.Integer(description='Number of items per page of results'),
     'total': fields.Integer(description='Total number of results'),
 })
-
-category = api.model('Blog category', {
-    'id': fields.Integer(readOnly=True, description='The unique identifier of a blog category'),
-    'name': fields.String(required=True, description='Category name'),
-})

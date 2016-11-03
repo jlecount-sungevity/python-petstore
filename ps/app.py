@@ -27,11 +27,9 @@ def initialize_app(flask_app):
     blueprint = Blueprint('/', __name__, url_prefix='/api')
     api.init_app(blueprint)
     from ps.api.petstore.endpoints.users import ns as users_namespace
-    #from ps.api.petstore.endpoints.store import ns as store_namespace
-    #from ps.api.petstore.endpoints.health import ns as healthcheck_namespace
+    from ps.api.petstore.endpoints.auth import ns as auth_namespace
     api.add_namespace(users_namespace)
-    api.add_namespace(users_namespace)
-    #api.add_namespace(healthcheck_namespace)
+    api.add_namespace(auth_namespace)
     flask_app.register_blueprint(blueprint)
 
     db.init_app(flask_app)

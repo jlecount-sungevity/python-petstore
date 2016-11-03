@@ -1,6 +1,8 @@
 import logging
+import random
 import traceback
 
+import flask
 from flask import abort
 from flask import request
 from flask_restplus import Resource
@@ -25,7 +27,7 @@ def _authenticate(request):
         if len(lastpart) != 40:
             abort(403, "Invalid auth token")
 
-@ns.route('/<int:id>')
+@ns.route('/')
 @api.response(404, 'User not found.')
 class User(Resource):
 
