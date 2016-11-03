@@ -20,6 +20,12 @@ def default_error_handler(e):
         return {'message': message}, 500
 
 
+@api.errorhandler
+def auth_required_handler(e):
+    log.warning(traceback.format_exc())
+    return {'message': 'Authentication token required!'},\
+           403
+
 @api.errorhandler(NoResultFound)
 def database_not_found_error_handler(e):
     log.warning(traceback.format_exc())
