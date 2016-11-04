@@ -1,13 +1,11 @@
 from ps.app import db
 
 
-
 class PetStatus(db.Model):
     # can be available, pending, sold
     __tablename__ = 'pet_status'
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(100))
-    parent_id = db.Column(db.Integer, db.ForeignKey('pet.id'))
 
 
 class Token(db.Model):
@@ -34,7 +32,7 @@ class UserStatus(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100))
+    username = db.Column(db.String(100))
     role = db.Column(db.String(100))
     bank_account_balance_dollars = db.Column(db.Integer, default=200)
     password = db.Column(db.String(100))
@@ -46,15 +44,13 @@ class Pet(db.Model):
     name = db.Column(db.String(50))
     added_by = db.Column(db.ForeignKey('user.id'))
     added_at = db.Column(db.DateTime)
-    type = db.Column(db.String(50))
+    pet_type = db.Column(db.String(50))
     cost = db.Column(db.Integer)
+    pet_status_id = db.Column(db.Integer, db.ForeignKey('pet_status.id'))
     pet_status = db.relationship("PetStatus", uselist=False)
 
-    def __init__(self, name):
-        self.name = name
-
     def __repr__(self):
-        return 'Pet: {0} ({1})'.format(self.name, self.type)
+        return 'Pet: {0} ({1})'.format(self.name, self.pet_type)
 
 
 class Order(db.Model):

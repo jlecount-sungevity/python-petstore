@@ -23,16 +23,21 @@ class ListPetsOrCreateNew(Resource):
         return pets
 
 
-    @api.response(201, 'Pet successfully created.')
-    @api.expect(newpet)
-    @api.marshal_with(pet)
     @api.header('Authorization', 'Authorization', required=True)
+    @api.doc(responses={
+        201: 'Created',
+        403: 'Not Authorized'}
+    )
+    @api.expect(newpet)
     def post(self):
         """
         Creates a new pet
         """
+        print "Got right method"
         _authenticate(request)
+        print "Got past auth"
         data = request.json
+        print "read the data, sending to create_pet"
         create_pet(data)
         return None, 201
 

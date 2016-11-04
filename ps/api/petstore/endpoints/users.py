@@ -3,7 +3,7 @@ import random
 import traceback
 
 import flask
-from flask import abort
+from flask_restplus import abort
 from flask import request
 from flask_restplus import Resource
 from ps.api.petstore.business import update_user, delete_user, create_user
@@ -95,13 +95,25 @@ class User(Resource):
 
 
     @api.header('Authorization', 'Authorization', required=True)
-    @api.doc(responses={403: 'Not Authorized'})
-    @api.response(204, 'User successfully deleted.')
+    @api.doc(responses={
+        403: 'Not Authorized',
+        204: 'User successfully deleted.',
+        400: 'No such user.',
+        422: 'Cannot delete user.',
+    })
     def delete(self, id):
         """
         Deletes a user.
         """
         _authenticate(request)
+        try:
+            u = models.User.query.filter(models.User.id == id).one()
+            if u.role == 'admin':
+                abort(422)
+        except: # missing user
+            traceback.print_exc()
+            abort(400, 'No such user')
+
         delete_user(id)
         return None, 204
 

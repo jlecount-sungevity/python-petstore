@@ -1,4 +1,3 @@
-
 import logging
 import random
 import traceback
@@ -13,6 +12,7 @@ from ps.api.restplus import api
 from ps.app import db
 from ps.database import models
 from ps.api.petstore.serializers import user
+from sqlalchemy.orm.exc import NoResultFound
 
 log = logging.getLogger(__name__)
 
@@ -20,9 +20,8 @@ ns = api.namespace('auth/token', description='authentication')
 
 
 @ns.route('/')
-@api.response(403, 'Invalid email or password.')
+@api.response(403, 'Invalid username or password.')
 class Token(Resource):
-
     def create_token(self):
         alpha = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
                  "a", "b", "c", "d", "e", "f")
@@ -32,17 +31,23 @@ class Token(Resource):
     @api.expect(auth_parser)
     def post(self):
         try:
-            email = request.form['email']
-            password = request.form['password']
+            # handle either post body or form
+            if request.json:
+                username = request.json['username']
+                password = request.json['password']
+                client_id = request.json['client_id']
+                grant_type = request.json['grant_type']
+            else:
+                username = request.form['username']
+                password = request.form['password']
+                client_id = request.form['client_id']
+                grant_type = request.form['grant_type']
         except:
             traceback.print_exc()
 
-        print "Email is {0} and password is {1}".format(email, password)
-        client_id = request.form['client_id']
         if not client_id:
             abort(403, "missing client_id")
 
-        grant_type = request.form['grant_type']
         if not grant_type or grant_type != 'password':
             abort(403, "missing or invalid grant_type")
 
@@ -50,20 +55,25 @@ class Token(Resource):
         role_val = 0
         try:
             u = models.User.query.filter(
-                models.User.email == email and
+                models.User.username == username and
                 models.User.password == password
             ).one()
             if u.role == 'admin':
                 role_value = 1
 
+        except NoResultFound:
+            print "Debug -- no cannot auth, no user: {0} / {1}".format(
+                username,
+                password
+            )
+            abort(403, "Invalid username or password")
         except:
             traceback.print_exc()
-            abort(403, "Invalid email or password")
-
+            abort(500, "Unknown error!")
         output = {
-            'token_type': 'Bearer',
-            'scope': 'sungevity.com',
-            'expires_in': 3600,
+            'token_type':   'Bearer',
+            'scope':        'sungevity.com',
+            'expires_in':   3600,
             'access_token': tokenvalue
         }
         dbtoken = models.Token(

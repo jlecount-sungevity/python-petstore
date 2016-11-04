@@ -1,6 +1,6 @@
 import datetime
 from ps.app import db
-from ps.database.models import UserStatus
+from ps.database.models import UserStatus, PetStatus
 from flask_restplus import abort
 
 
@@ -8,16 +8,12 @@ def create_pet(data):
     from ps.database.models import Pet
     name = data.get('name')
     cost = data.get('cost', 20)
-    pet_type = data.get('type')
+    pet_type = data.get('pet_type')
     status = "for sale"
-    pet = Pet(
-        name=name,
-        pet_status=status,
-        cost=cost,
-        type=pet_type,
-        added_by=1,
-        added_at=datetime.datetime.now()
-    )
+    pet = Pet(name=name, pet_status=PetStatus(status=status),
+              cost=cost, pet_type=pet_type,
+              added_by=1, added_at = datetime.datetime.now()
+              )
     db.session.add(pet)
     db.session.commit()
 
@@ -37,6 +33,7 @@ def update_pet(pet_id, data):
     db.session.add(pet)
     db.session.commit()
 
+
 def update_pet_status(pet_id, status):
     """
     soft-delete of a pet
@@ -49,8 +46,10 @@ def update_pet_status(pet_id, status):
     db.session.add(pet)
     db.session.commit()
 
+
 def sell_pet(pet_id):
     update_pet_status(pet_id, 'sold')
+
 
 def delete_pet(pet_id):
     update_pet_status(pet_id, 'deleted')
@@ -71,16 +70,17 @@ def create_user(data):
         id = data.get('id')
     else:
         id = None
-    email = data.get('email')
+    username = data.get('username')
     password = data.get('password')
     bank_account_balance_dollars = data.get('bank_account_balance_dollars', 200)
     status = 'registered'
 
     try:
-        existing_by_email = User.query.filter(User.email == email).one()
+        existing_by_username = User.query.filter(
+            User.username == username).one()
     except:
         # hella ugly, but drops in here when user doesn't already exist.
-        user = User(email=email, role=role, password=password,
+        user = User(username=username, role=role, password=password,
                     bank_account_balance_dollars=bank_account_balance_dollars,
                     status=status)
 
@@ -93,11 +93,11 @@ def create_user(data):
 
 def update_user(user_id, data):
     from ps.database.models import User
-    user= User.query.filter(User.id == user_id).one()
+    user = User.query.filter(User.id == user_id).one()
 
-    em = data.get('email')
+    em = data.get('username')
     if em:
-        user.email = em
+        user.username = em
 
     status = data.get('status')
     if status:
@@ -106,12 +106,12 @@ def update_user(user_id, data):
             user.status = st.id
         except:
             all_statuses = [s.status for s in UserStatus.query.all()]
-            abort(422, message=\
-            "No such status: {0}.  Valid statuses are: {1}".format(
+            abort(422, message= \
+                "No such status: {0}.  Valid statuses are: {1}".format(
                     status,
                     ','.join(all_statuses)
                 )
-            )
+                  )
 
     pw = data.get('password')
     if pw:
