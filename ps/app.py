@@ -1,24 +1,31 @@
 import logging.config
 
 import socket
+from logging import Formatter, FileHandler
+from logging.handlers import RotatingFileHandler
+
 from flask import Flask, Blueprint
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from ps import settings
 from ps.api.restplus import api
 
 app = Flask(__name__)
 db = SQLAlchemy()
-logging.config.fileConfig('logging.conf')
-log = logging.getLogger(__name__)
 
-
-host='localhost'
-port=8888
-
-if 'JLECOUNT' not in socket.gethostname():
-    host='0.0.0.0'
-    port=80
-
+LOGGER = logging.getLogger('whatever')
+file_handler = FileHandler('test.log')
+handler = logging.StreamHandler()
+file_handler.setFormatter(Formatter(
+        '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(pathname)s:%(lineno)d]'
+            ))
+handler.setFormatter(Formatter(
+        '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(pathname)s:%(lineno)d]'
+            ))
+LOGGER.addHandler(file_handler)
+LOGGER.addHandler(handler)
+LOGGER.setLevel(logging.INFO)
 
 def configure_app(flask_app):
     flask_app.config['SERVER_NAME'] = settings.FLASK_SERVER_NAME
@@ -49,8 +56,9 @@ def initialize_app(flask_app):
 
 def main():
     initialize_app(app)
-    log.info('>>>>> Starting development server at http://{}/ <<<<<'.format(app.config['SERVER_NAME']))
-    app.run(debug=settings.FLASK_DEBUG, host=host, port=port)
+    #log.info('>>>>> Starting development server at http://{}/ <<<<<'.format(
+    # app.config['SERVER_NAME']))
+    app.run()
 
-if __name__ == "__main__":
-    main()
+# force the side-effect
+main()
