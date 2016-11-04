@@ -22,7 +22,7 @@ def default_error_handler(e):
 
 @api.errorhandler
 def auth_required_handler(e):
-    log.warning(traceback.format_exc())
+    traceback.print_exc()
     return {'message': 'Authentication token required!'},\
            403
 

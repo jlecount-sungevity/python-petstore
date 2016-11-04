@@ -6,14 +6,15 @@ import flask
 from flask import abort
 from flask import request
 from flask_restplus import Resource
-from ps.api.petstore.business import update_user, delete_user
-from ps.api.petstore.serializers import user
+from ps.api.petstore.business import update_user, delete_user, create_user
+from ps.api.petstore.serializers import user, userfields_for_creation
 from ps.api.restplus import api
 from ps.database import models
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('users', description='Operations related to user mgmt')
+ns = api.namespace('users', description='Customer and admin user management '
+                                        'API')
 
 def _authenticate(request):
     auth = request.headers.get("Authorization")
@@ -27,21 +28,59 @@ def _authenticate(request):
         if len(lastpart) != 40:
             abort(403, "Invalid auth token")
 
+
 @ns.route('/')
 @api.response(404, 'User not found.')
-class User(Resource):
+class ListUserOrCreateNew(Resource):
 
+    @api.marshal_with(user, as_list=True)
+    def get(self):
+        """
+        Lists all users
+        """
+        users = models.User.query.all()
+        if users:
+           return users, 200
+        else:
+            return [], 200
+
+
+    @api.expect(userfields_for_creation)
+    @api.header('Authorization', 'Authorization', required=True)
+    @api.doc(responses={403: 'Not Authorized'})
+    @api.response(204, 'Customer user successfully created.')
+    def post(self):
+        """
+        Creates a user.
+        """
+        _authenticate(request)
+        data = request.json
+
+        create_user(data)
+        return None, 204
+
+@api.response(404, 'User not found.')
+@ns.route('/<int:id>')
+class User(Resource):
 
     @api.marshal_with(user)
     def get(self, id):
         """
         Returns a user
         """
-        return models.User.query.filter(models.User.id == id).one()
+        if not id:
+            users = models.User.query.all()
+            print "length of users: {0}".format(len(users))
+            if users:
+                return users, 200
+            else:
+                return [], 200
+        else:
+            return models.User.query.filter(models.User.id == id).one()
 
-    @api.expect(user)
+
+    @api.expect(userfields_for_creation)
     @api.header('Authorization', 'Authorization', required=True)
-    @api.doc(responses={403: 'Not Authorized'})
     @api.response(204, 'User successfully updated.')
     def put(self, id):
         """
@@ -53,6 +92,7 @@ class User(Resource):
 
         update_user(id, data)
         return None, 204
+
 
     @api.header('Authorization', 'Authorization', required=True)
     @api.doc(responses={403: 'Not Authorized'})

@@ -1,48 +1,94 @@
+import datetime
 from ps.app import db
 from ps.database.models import UserStatus
 from flask_restplus import abort
 
 
 def create_pet(data):
-    from ps.database.models import Pet, Category
-    title = data.get('title')
-    body = data.get('body')
-    category_id = data.get('category_id')
-    category = Category.query.filter(Category.id == category_id).one()
-    post = Pet(title, body, category)
-    db.session.add(post)
+    from ps.database.models import Pet
+    name = data.get('name')
+    cost = data.get('cost', 20)
+    pet_type = data.get('type')
+    status = "for sale"
+    pet = Pet(
+        name=name,
+        pet_status=status,
+        cost=cost,
+        type=pet_type,
+        added_by=1,
+        added_at=datetime.datetime.now()
+    )
+    db.session.add(pet)
     db.session.commit()
 
 
 def update_pet(pet_id, data):
-    from ps.database.models import Pet, Category
-    post = Pet.query.filter(Pet.id == pet_id).one()
-    post.title = data.get('title')
-    post.body = data.get('body')
-    category_id = data.get('category_id')
-    post.category = Category.query.filter(Category.id == category_id).one()
-    db.session.add(post)
+    """
+    Update a pet
+    One may only update the name and cost, not status
+    :param pet_id:
+    :param data:
+    :return:
+    """
+    from ps.database.models import Pet
+    pet = Pet.query.filter(Pet.id == pet_id).one()
+    pet.name = data.get('name')
+    pet.cost = data.get('cost')
+    db.session.add(pet)
     db.session.commit()
 
+def update_pet_status(pet_id, status):
+    """
+    soft-delete of a pet
+    :param pet_id:
+    :return:
+    """
+    from ps.database.models import Pet
+    pet = Pet.query.filter(Pet.id == pet_id).one()
+    pet.status = status
+    db.session.add(pet)
+    db.session.commit()
+
+def sell_pet(pet_id):
+    update_pet_status(pet_id, 'sold')
 
 def delete_pet(pet_id):
-    from ps.database.models import Pet
-    post = Pet.query.filter(Pet.id == pet_id).one()
-    db.session.delete(post)
-    db.session.commit()
+    update_pet_status(pet_id, 'deleted')
 
 
 def create_user(data):
+    """
+    Users are either 'admin' or 'customer'
+
+    :param data:
+    :return:
+    """
     from ps.database.models import User
-    name = data.get('name')
-    category_id = data.get('id')
+    role = "customer"
 
-    category = User(name)
-    if category_id:
-        category.id = category_id
+    # intended bug -- can overwrite a user id by passing one in!
+    if 'id' in data:
+        id = data.get('id')
+    else:
+        id = None
+    email = data.get('email')
+    password = data.get('password')
+    bank_account_balance_dollars = data.get('bank_account_balance_dollars', 200)
+    status = 'registered'
 
-    db.session.add(category)
-    db.session.commit()
+    try:
+        existing_by_email = User.query.filter(User.email == email).one()
+    except:
+        # hella ugly, but drops in here when user doesn't already exist.
+        user = User(email=email, role=role, password=password,
+                    bank_account_balance_dollars=bank_account_balance_dollars,
+                    status=status)
+
+        if id:
+            user.id = id
+
+        db.session.add(user)
+        db.session.commit()
 
 
 def update_user(user_id, data):
@@ -52,18 +98,6 @@ def update_user(user_id, data):
     em = data.get('email')
     if em:
         user.email = em
-
-    fn = data.get('first_name')
-    if fn:
-        user.first_name = fn
-
-    ln = data.get('last_name')
-    if ln:
-        user.first_name = ln
-
-    username = data.get('username')
-    if username:
-        user.username = username
 
     status = data.get('status')
     if status:
@@ -79,16 +113,9 @@ def update_user(user_id, data):
                 )
             )
 
-    if username:
-        user.username = username
-
     pw = data.get('password')
     if pw:
         user.password = pw
-
-    phone = data.get('phone')
-    if phone:
-        user.phone = phone
 
     db.session.add(user)
     db.session.commit()
@@ -96,6 +123,7 @@ def update_user(user_id, data):
 
 def delete_user(user_id):
     from ps.database.models import User
-    category = User.query.filter(User.id == user_id).one()
-    db.session.delete(category)
+    user = User.query.filter(User.id == user_id).one()
+    user.status = 'unregistered'
+    db.session.add(user)
     db.session.commit()

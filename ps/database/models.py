@@ -1,19 +1,6 @@
 from ps.app import db
 
 
-class PhotoURL(db.Model):
-    __tablename__ = 'photo_url'
-    id = db.Column(db.Integer, primary_key=True)
-    url = db.Column(db.String(200))
-    parent_id = db.Column(db.Integer, db.ForeignKey('pet.id'))
-
-
-class PetTag(db.Model):
-    __tablename__ = 'pet_tag'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    parent_id = db.Column(db.Integer, db.ForeignKey('pet.id'))
-
 
 class PetStatus(db.Model):
     # can be available, pending, sold
@@ -23,23 +10,21 @@ class PetStatus(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('pet.id'))
 
 
+class Token(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.String(40))
+    uid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    is_admin = db.Column(db.Integer)
+
+    def is_admin_user(self):
+        return self.is_admin == 1
+
 class OrderStatus(db.Model):
     # can be placed, approved, done
     __tablename__ = 'order_status'
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(100))
     parent_id = db.Column(db.Integer, db.ForeignKey('order.id'))
-
-
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-
-
-class Quote(db.Model):
-    __tablename__ = 'quotes'
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(120))
 
 
 class UserStatus(db.Model):
@@ -49,24 +34,21 @@ class UserStatus(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100))
-    first_name = db.Column(db.String(100))
-    last_name = db.Column(db.String(100))
     email = db.Column(db.String(100))
+    role = db.Column(db.String(100))
+    bank_account_balance_dollars = db.Column(db.Integer, default=200)
     password = db.Column(db.String(100))
-    phone = db.Column(db.String(100))
     status = db.Column(db.ForeignKey('user_status.id'))
 
 
 class Pet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
-    category = db.Column(db.ForeignKey('category.id'))
+    added_by = db.Column(db.ForeignKey('user.id'))
+    added_at = db.Column(db.DateTime)
     type = db.Column(db.String(50))
-    photo_urls = db.relationship("PhotoURL")
+    cost = db.Column(db.Integer)
     pet_status = db.relationship("PetStatus", uselist=False)
-    description = db.Column(db.String(1024))
-    tags = db.relationship("PetTag")
 
     def __init__(self, name):
         self.name = name
@@ -78,10 +60,10 @@ class Pet(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pet = db.Column(db.ForeignKey('pet.id'))
+    user = db.Column(db.ForeignKey('user.id'))
     status = db.Column(db.ForeignKey('order_status.id'))
     is_complete = db.Column(db.Boolean, default=False)
 
 
-__all__ = [PhotoURL, PetTag, PetStatus,
-           Pet, User, UserStatus,
-           Category, OrderStatus, PetStatus]
+__all__ = [PetStatus, Pet, User, UserStatus,
+           OrderStatus, PetStatus]
