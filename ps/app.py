@@ -56,9 +56,6 @@ def initialize_app(flask_app):
 
 def main():
     initialize_app(app)
-    #log.info('>>>>> Starting development server at http://{}/ <<<<<'.format(
-    # app.config['SERVER_NAME']))
     app.run()
 
-# force the side-effect
 main()

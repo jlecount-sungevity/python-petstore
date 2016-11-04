@@ -13,8 +13,7 @@ from ps.database import models
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('users', description='Customer and admin user management '
-                                        'API')
+ns = api.namespace('users', description='Customer and admin user management API')
 
 def _authenticate(request):
     auth = request.headers.get("Authorization")
