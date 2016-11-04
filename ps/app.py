@@ -1,5 +1,6 @@
 import logging.config
 
+import socket
 from flask import Flask, Blueprint
 from flask.ext.sqlalchemy import SQLAlchemy
 from ps import settings
@@ -9,6 +10,14 @@ app = Flask(__name__)
 db = SQLAlchemy()
 logging.config.fileConfig('logging.conf')
 log = logging.getLogger(__name__)
+
+
+host='localhost'
+port=8888
+
+if 'JLECOUNT' not in socket.gethostname():
+    host='0.0.0.0'
+    port=80
 
 
 def configure_app(flask_app):
@@ -41,7 +50,7 @@ def initialize_app(flask_app):
 def main():
     initialize_app(app)
     log.info('>>>>> Starting development server at http://{}/ <<<<<'.format(app.config['SERVER_NAME']))
-    app.run(debug=settings.FLASK_DEBUG)
+    app.run(debug=settings.FLASK_DEBUG, host=host, port=port)
 
 if __name__ == "__main__":
     main()
