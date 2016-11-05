@@ -16,6 +16,7 @@ def create_pet(data):
               )
     db.session.add(pet)
     db.session.commit()
+    return pet.to_json()
 
 
 def update_pet(pet_id, data):
@@ -128,6 +129,6 @@ def update_user(user_id, data):
 def delete_user(user_id):
     from ps.database.models import User
     user = User.query.filter(User.id == user_id).one()
-    user.status = 'unregistered'
+    user.status = "unregistered"
     db.session.add(user)
     db.session.commit()

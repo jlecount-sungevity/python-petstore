@@ -58,6 +58,17 @@ class Pet(db.Model):
     pet_status_id = db.Column(db.Integer, db.ForeignKey('pet_status.id'))
     pet_status = db.relationship("PetStatus", uselist=False)
 
+    def to_json(self):
+        return dict(
+            id=self.id,
+            name= self.name,
+            added_by = self.added_by,
+            added_at = str(self.added_at),
+            pet_type = self.pet_type,
+            cost = self.cost,
+            pet_status = PetStatus(id=self.pet_status_id).status
+        )
+
     def __repr__(self):
         return 'Pet: {0} ({1})'.format(self.name, self.pet_type)
 
