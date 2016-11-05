@@ -15,6 +15,7 @@ ns = api.namespace('pets', description='The pet management API')
 @ns.route('/')
 class ListPetsOrCreateNew(Resource):
     @api.marshal_list_with(pet)
+    @api.doc(responses={ 200: 'OK' })
     def get(self):
         """
         Returns list of pets
@@ -46,6 +47,10 @@ class PetById(Resource):
 
 
     @api.marshal_with(pet)
+    @api.doc(responses={
+        200: 'OK',
+        404: 'No such pet with id'}
+    )
     def get(self, id):
         """
         Returns a pet by id

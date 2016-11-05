@@ -38,6 +38,15 @@ class User(db.Model):
     password = db.Column(db.String(100))
     status = db.Column(db.ForeignKey('user_status.id'))
 
+    def to_json(self):
+        return dict(
+            id=self.id,
+            username = self.username,
+            role = self.role,
+            bank_account_balance_dollars = self.bank_account_balance_dollars,
+            status=self.status
+        )
+
 
 class Pet(db.Model):
     id = db.Column(db.Integer, primary_key=True)

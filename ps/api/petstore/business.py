@@ -78,7 +78,9 @@ def create_user(data):
     try:
         existing_by_username = User.query.filter(
             User.username == username).one()
-    except:
+        print "already exists -- gonna abort"
+        abort(400, "User with that username already exists")
+    except Exception as e:
         # hella ugly, but drops in here when user doesn't already exist.
         user = User(username=username, role=role, password=password,
                     bank_account_balance_dollars=bank_account_balance_dollars,
@@ -89,6 +91,8 @@ def create_user(data):
 
         db.session.add(user)
         db.session.commit()
+
+        return user.to_json()
 
 
 def update_user(user_id, data):

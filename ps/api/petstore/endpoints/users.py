@@ -47,7 +47,7 @@ class ListUserOrCreateNew(Resource):
     @api.expect(userfields_for_creation)
     @api.header('Authorization', 'Authorization', required=True)
     @api.doc(responses={403: 'Not Authorized'})
-    @api.response(204, 'Customer user successfully created.')
+    @api.response(201, 'Customer user successfully created.')
     def post(self):
         """
         Creates a user.
@@ -55,8 +55,8 @@ class ListUserOrCreateNew(Resource):
         _authenticate(request)
         data = request.json
 
-        create_user(data)
-        return None, 204
+        new_user = create_user(data)
+        return new_user, 201
 
 @api.response(404, 'User not found.')
 @ns.route('/<int:id>')
