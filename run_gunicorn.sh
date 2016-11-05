@@ -11,6 +11,11 @@ then
 fi
 workon petstore
 add2virtualenv .
-gunicorn -k gevent --bind  0.0.0.0:8080 --log-level debug --access-logfile /var/tmp/gunicorn/access.log --error-logfile /var/tmp/gunicorn/error.log --worker-connections 100 ps.app:app
+mkdir .log 2> /dev/null
+pkill -9 gunicocrn
+#nohup gunicorn -k gevent --log-level debug --access-logfile /var/tmp/gunicorn/access.log --error-logfile /var/tmp/gunicorn/error.log --worker-connections 10 ps.app:app &
+nohup gunicorn --log-level debug --access-logfile /var/tmp/gunicorn/access.log --error-logfile /var/tmp/gunicorn/error.log --workers 10 ps.app:app &
+sleep 5
+sudo nginx -s reload 
 
 

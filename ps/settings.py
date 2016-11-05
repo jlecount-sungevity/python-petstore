@@ -1,7 +1,6 @@
 # Flask settings
-FLASK_SERVER_NAME = 'localhost:8888'
-#FLASK_SERVER_NAME = '10.66.20.107:8888'
-FLASK_DEBUG = True # Do not use debug mode in production
+FLASK_SERVER_NAME = '127.0.0.1:8888'
+FLASK_DEBUG = False # Do not use debug mode in production
 
 # Flask-Restplus settings
 RESTPLUS_SWAGGER_UI_DOC_EXPANSION = 'list'
