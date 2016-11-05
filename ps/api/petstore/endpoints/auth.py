@@ -52,7 +52,7 @@ class Token(Resource):
             abort(403, "missing or invalid grant_type")
 
         tokenvalue = self.create_token()
-        role_val = 0
+        role_value = 0
         try:
             u = models.User.query.filter(
                 models.User.username == username and

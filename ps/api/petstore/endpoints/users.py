@@ -29,9 +29,9 @@ def _authenticate(request):
 
 
 @ns.route('/')
-@api.response(404, 'User not found.')
 class ListUserOrCreateNew(Resource):
 
+    @api.response(200, 'OK')
     @api.marshal_with(user, as_list=True)
     def get(self):
         """
