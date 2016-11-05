@@ -1,5 +1,4 @@
 import logging
-import random
 import traceback
 
 import flask
@@ -9,7 +8,6 @@ from flask_restplus import Resource
 from ps.api.petstore.business import update_user, delete_user, create_user
 from ps.api.petstore.serializers import user, userfields_for_creation
 from ps.api.restplus import api
-from ps.database import models
 
 log = logging.getLogger(__name__)
 
@@ -37,6 +35,7 @@ class ListUserOrCreateNew(Resource):
         """
         Lists all users
         """
+        from ps.database import models
         users = models.User.query.all()
         if users:
            return users, 200
@@ -67,15 +66,8 @@ class User(Resource):
         """
         Returns a user
         """
-        if not id:
-            users = models.User.query.all()
-            print "length of users: {0}".format(len(users))
-            if users:
-                return users, 200
-            else:
-                return [], 200
-        else:
-            return models.User.query.filter(models.User.id == id).one()
+        from ps.database import models
+        return models.User.query.filter(User.id == id).one()
 
 
     @api.expect(userfields_for_creation)
@@ -106,7 +98,8 @@ class User(Resource):
         """
         _authenticate(request)
         try:
-            u = models.User.query.filter(models.User.id == id).one()
+            from ps.database import models
+            u = models.User.query.filter(User.id == id).one()
             if u.role == 'admin':
                 abort(422)
         except: # missing user

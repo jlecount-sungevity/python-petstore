@@ -1,13 +1,6 @@
 from ps.app import db
 
 
-class PetStatus(db.Model):
-    # can be available, pending, sold
-    __tablename__ = 'pet_status'
-    id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.String(100))
-
-
 class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.String(40))
@@ -25,18 +18,13 @@ class OrderStatus(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('order.id'))
 
 
-class UserStatus(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.String(100))
-
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100))
     role = db.Column(db.String(100))
     bank_account_balance_dollars = db.Column(db.Integer, default=200)
     password = db.Column(db.String(100))
-    status = db.Column(db.ForeignKey('user_status.id'))
+    status = db.Column(db.String(100))
 
     def to_json(self):
         return dict(
@@ -51,22 +39,21 @@ class User(db.Model):
 class Pet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
-    added_by = db.Column(db.ForeignKey('user.id'))
+    last_modified_by = db.Column(db.ForeignKey('user.id'))
     added_at = db.Column(db.DateTime)
     pet_type = db.Column(db.String(50))
     cost = db.Column(db.Integer)
-    pet_status_id = db.Column(db.Integer, db.ForeignKey('pet_status.id'))
-    pet_status = db.relationship("PetStatus", uselist=False)
+    pet_status = db.Column(db.String(100))
 
     def to_json(self):
         return dict(
             id=self.id,
             name= self.name,
-            added_by = self.added_by,
+            last_modified_by = self.last_modified_by,
             added_at = str(self.added_at),
             pet_type = self.pet_type,
             cost = self.cost,
-            pet_status = PetStatus(id=self.pet_status_id).status
+            pet_status = self.pet_status
         )
 
     def __repr__(self):
@@ -80,6 +67,11 @@ class Order(db.Model):
     status = db.Column(db.ForeignKey('order_status.id'))
     is_complete = db.Column(db.Boolean, default=False)
 
-
-__all__ = [PetStatus, Pet, User, UserStatus,
-           OrderStatus, PetStatus]
+    def to_json(self):
+        return dict(
+            id=self.id,
+            pet_id=self.pet,
+            user_id=self.user,
+            status=self.status,
+            is_complete=self.is_complete
+        )

@@ -1,18 +1,17 @@
+import ps
 import datetime
 from ps.app import db
-from ps.database.models import UserStatus, PetStatus
 from flask_restplus import abort
 
 
 def create_pet(data):
-    from ps.database.models import Pet
     name = data.get('name')
     cost = data.get('cost', 20)
     pet_type = data.get('pet_type')
     status = "for sale"
-    pet = Pet(name=name, pet_status=PetStatus(status=status),
+    pet = ps.database.models.Pet(name=name, pet_status=status,
               cost=cost, pet_type=pet_type,
-              added_by=1, added_at = datetime.datetime.now()
+              last_modified_by=1, added_at = datetime.datetime.now()
               )
     db.session.add(pet)
     db.session.commit()
@@ -27,8 +26,8 @@ def update_pet(pet_id, data):
     :param data:
     :return:
     """
-    from ps.database.models import Pet
-    pet = Pet.query.filter(Pet.id == pet_id).one()
+    pet = ps.database.models.Pet.query.filter(ps.database.models.Pet.id ==
+                                              pet_id).one()
     pet.name = data.get('name')
     pet.cost = data.get('cost')
     db.session.add(pet)
@@ -41,9 +40,10 @@ def update_pet_status(pet_id, status):
     :param pet_id:
     :return:
     """
-    from ps.database.models import Pet
-    pet = Pet.query.filter(Pet.id == pet_id).one()
-    pet.status = status
+    pet = ps.database.models.Pet.query.filter(
+        ps.database.models.Pet.id == pet_id
+    ).one()
+    pet.pet_status = status
     db.session.add(pet)
     db.session.commit()
 
@@ -63,7 +63,6 @@ def create_user(data):
     :param data:
     :return:
     """
-    from ps.database.models import User
     role = "customer"
 
     # intended bug -- can overwrite a user id by passing one in!
@@ -77,15 +76,18 @@ def create_user(data):
     status = 'registered'
 
     try:
-        existing_by_username = User.query.filter(
-            User.username == username).one()
+        existing_by_username = ps.database.models.User.query.filter(
+            ps.database.models.User.username == username).one()
         print "already exists -- gonna abort"
         abort(400, "User with that username already exists")
     except Exception as e:
         # hella ugly, but drops in here when user doesn't already exist.
-        user = User(username=username, role=role, password=password,
-                    bank_account_balance_dollars=bank_account_balance_dollars,
-                    status=status)
+        user = ps.database.models.User(
+            username=username, role=role,
+            password=password,
+            bank_account_balance_dollars=bank_account_balance_dollars,
+            status=status
+        )
 
         if id:
             user.id = id
@@ -97,8 +99,7 @@ def create_user(data):
 
 
 def update_user(user_id, data):
-    from ps.database.models import User
-    user = User.query.filter(User.id == user_id).one()
+    user = ps.database.models.User.query.filter(ps.database.models.User.id == user_id).one()
 
     em = data.get('username')
     if em:
@@ -106,17 +107,12 @@ def update_user(user_id, data):
 
     status = data.get('status')
     if status:
-        try:
-            st = UserStatus.query.filter(UserStatus.status == status).one()
-            user.status = st.id
-        except:
-            all_statuses = [s.status for s in UserStatus.query.all()]
-            abort(422, message= \
-                "No such status: {0}.  Valid statuses are: {1}".format(
-                    status,
-                    ','.join(all_statuses)
-                )
-                  )
+        if status not in ['sold', 'for sale', 'removed']:
+            abort(
+                422,
+                message="Valid statuses are 'sold', 'for sale' or 'removed'"
+            )
+            user.status = status
 
     pw = data.get('password')
     if pw:
@@ -125,10 +121,54 @@ def update_user(user_id, data):
     db.session.add(user)
     db.session.commit()
 
+def get_orders():
+    orders = ps.database.models.Order.query.all()
+    if orders:
+        return orders, 200
+    else:
+        return [], 200
+
+def delete_order(order_id):
+    order = ps.database.models.Order.query.filter(ps.database.models.Order.id == order_id).one()
+    order.status = "deleted"
+    db.session.add(order)
+    db.session.commit()
+
 
 def delete_user(user_id):
-    from ps.database.models import User
-    user = User.query.filter(User.id == user_id).one()
+    user = ps.database.models.User.query.filter(
+        ps.database.models.User.id == user_id
+    ).one()
     user.status = "unregistered"
     db.session.add(user)
     db.session.commit()
+
+def add_order(buyer_id, pet_id):
+    order = ps.database.models.Order(
+        pet_id=pet_id,
+        user_id=buyer_id
+    )
+
+    buyer = ps.database.models.User(id=buyer_id),
+    pet = ps.database.models.Pet(id=pet_id),
+
+    if buyer.bank_account_balance_dollars < pet.cost:
+        abort(422, 'Insufficient funds')
+    newbal = buyer.bank_account_balance_dollars - pet.cost
+
+    # BUG:
+    # we debit the buyer's account and set the pet to sold in two
+    # transactions which means two buyers could totally buy the same pet.
+
+    # update buyer's bank account and create the order
+    buyer.bank_account_balance_dollars = newbal
+    db.sesion.add(buyer)
+    db.session.add(order)
+    db.session.commit()
+    datetime.time.sleep(300)
+
+    # update pet status
+    pet.pet_status = 'sold'
+    db.session.add(pet)
+    db.session.commit()
+    return order.to_json()

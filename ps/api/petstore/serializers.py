@@ -7,7 +7,7 @@ user = api.model('User', {
     'password': fields.String(required=True, description='password'),
     'role': fields.String(required=True, attribute='role.id'),
     'bank_account_balance_dollars': fields.Integer(required=True, description='username'),
-    'status': fields.String(required=True, attribute='user_status.id'),
+    'status': fields.String(required=True, description="valid values: non_customer or registered or deleted")
 })
 
 userfields_for_creation = api.model('User', {
@@ -23,10 +23,10 @@ userfields_for_creation = api.model('User', {
 pet = api.model('Pet', {
     'id': fields.Integer(readOnly=True, description='The unique identifier of a pet'),
     'added_at': fields.DateTime(readOnly=True, description='The time the pet was added to the db'),
-    'added_by': fields.Integer(required=True, attribute='user.id', description="The admin user who added the pet to the db"),
+    'last_modified_by': fields.Integer(required=True, attribute='user.id', description="The admin user who added the pet to the db"),
     'name': fields.String(required=True, description='pet name'),
     'pet_type': fields.String(required=True, description='type (dog, cat, etc)'),
-    'status': fields.String(required=True, attribute='pet_status.id'),
+    'pet_status': fields.String(required=True, description="sold or for_sale or removed"),
     'cost': fields.Integer(required=True, description='username')
 })
 
@@ -42,4 +42,9 @@ order = api.model('Order', {
     'status': fields.Integer(required=True, attribute='order_status.id'),
     'is_complete': fields.Boolean(default=False),
     'user': fields.Integer(required=True, attribute='user.id'),
+})
+
+neworder = api.model('Order', {
+    'pet_id': fields.Integer(required=True, attribute='pet.id'),
+    'user_id': fields.Integer(required=True, attribute='user.id'),
 })

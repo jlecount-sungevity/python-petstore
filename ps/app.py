@@ -44,9 +44,11 @@ def initialize_app(flask_app):
     from ps.api.petstore.endpoints.users import ns as users_namespace
     from ps.api.petstore.endpoints.auth import ns as auth_namespace
     from ps.api.petstore.endpoints.pet import ns as pet_namespace
+    from ps.api.petstore.endpoints.store import ns as store_namespace
     api.add_namespace(users_namespace)
     api.add_namespace(auth_namespace)
     api.add_namespace(pet_namespace)
+    api.add_namespace(store_namespace)
     flask_app.register_blueprint(blueprint)
 
     db.init_app(flask_app)

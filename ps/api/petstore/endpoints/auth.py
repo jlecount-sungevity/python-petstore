@@ -10,7 +10,6 @@ from flask_restplus import Resource
 from ps.api.petstore.parsers import auth_parser
 from ps.api.restplus import api
 from ps.app import db
-from ps.database import models
 from ps.api.petstore.serializers import user
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -53,6 +52,7 @@ class Token(Resource):
 
         tokenvalue = self.create_token()
         role_value = 0
+        from ps.database import models
         try:
             u = models.User.query.filter(
                 models.User.username == username and

@@ -67,6 +67,7 @@ class PetById(Resource):
         """
         Returns a pet by id
         """
+        print "About to delete pet with id {0}".format(id)
         delete_pet(id)
         return 204, None
 

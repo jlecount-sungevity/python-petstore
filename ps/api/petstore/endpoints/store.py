@@ -1,73 +1,58 @@
 import logging
+from datetime import time
 
+from api.petstore.business import add_order, delete_order, get_orders
+from api.petstore.endpoints.users import _authenticate
+from app import db
+from flask import abort
 from flask import request
 from flask_restplus import Resource
-from ps.api.petstore.serializers import category, category_with_posts
+from ps.api.petstore.serializers import order, neworder
 from ps.api.restplus import api
-from ps.database.models import Category
 
 log = logging.getLogger(__name__)
 
 ns = api.namespace('store', description='The Pet Emporium')
 
-@api.response(404, 'User not found.')
 @ns.route('/')
-class Store(Resource):
+class NewOrderOrListStore(Resource):
 
-    @api.marshal_with(order)
+    @api.response(200, 'OK')
+    @api.marshal_with(order, as_list=True)
+    def get(self):
+        """
+        Lists all orders
+        """
+        return get_orders()
+
+
+    @api.header('Authorization', 'Authorization', required=True)
+    @api.doc(responses={
+        403: 'Not Authorized',
+        400: 'No such user or pet',
+        422: 'Insufficient funds to purchase',
+        201: 'Order created.'
+    })
+    @api.expect(neworder)
     def post(self):
         """
-        Returns a user
+        Creates a new order
         """
-        if not id:
-            users = models.User.query.all()
-            print "length of users: {0}".format(len(users))
-            if users:
-                return users, 200
-            else:
-                return [], 200
-        else:
-            return models.User.query.filter(models.User.id == id).one()
-
-
-    @api.expect(user)
-    @api.header('Authorization', 'Authorization', required=True)
-    @api.doc(responses={403: 'Not Authorized'})
-    @api.response(204, 'User successfully updated.')
-    @api.doc(params={'id': 'The userid'})
-    def put(self, id):
-        """
-        Updates a user.
-        """
-        _authenticate(request)
         data = request.json
+        print "Data: {0}".format(data)
 
-
-        update_user(id, data)
-        return None, 204
-
-    @api.expect(userfields_for_creation)
-    @api.header('Authorization', 'Authorization', required=True)
-    @api.doc(responses={403: 'Not Authorized'})
-    @api.response(204, 'Customer user successfully created.')
-    def post(self):
-        """
-        Updates a user.
-        """
-        _authenticate(request)
-        data = request.json
-
-
-        create_user(data)
-        return None, 204
+        order = add_order(data['user_id'], data['pet_id']),
+        return order, 201
 
     @api.header('Authorization', 'Authorization', required=True)
-    @api.doc(responses={403: 'Not Authorized'})
-    @api.response(204, 'User successfully deleted.')
+    @api.doc(responses={
+        403: 'Not Authorized',
+        204: 'Order Deleted'
+    })
     def delete(self, id):
         """
         Deletes a user.
         """
         _authenticate(request)
-        delete_user(id)
+        delete_order(id)
         return None, 204
