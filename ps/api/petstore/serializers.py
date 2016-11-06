@@ -39,7 +39,7 @@ newpet = api.model('Pet', {
 order = api.model('Order', {
     'id': fields.Integer(readOnly=True, description='The unique identifier of a user'),
     'pet': fields.Integer(required=True, attribute='pet.id'),
-    'status': fields.Integer(required=True, attribute='order_status.id'),
+    'status': fields.String(required=True, description="complete or deleted"),
     'is_complete': fields.Boolean(default=False),
     'user': fields.Integer(required=True, attribute='user.id'),
 })

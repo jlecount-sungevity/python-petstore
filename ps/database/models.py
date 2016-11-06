@@ -10,13 +10,6 @@ class Token(db.Model):
     def is_admin_user(self):
         return self.is_admin == 1
 
-class OrderStatus(db.Model):
-    # can be placed, approved, done
-    __tablename__ = 'order_status'
-    id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.String(100))
-    parent_id = db.Column(db.Integer, db.ForeignKey('order.id'))
-
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -61,10 +54,11 @@ class Pet(db.Model):
 
 
 class Order(db.Model):
+    __tablename__ = 'store_order'
     id = db.Column(db.Integer, primary_key=True)
-    pet = db.Column(db.ForeignKey('pet.id'))
-    user = db.Column(db.ForeignKey('user.id'))
-    status = db.Column(db.ForeignKey('order_status.id'))
+    pet_id = db.Column(db.ForeignKey('pet.id'))
+    user_id = db.Column(db.ForeignKey('user.id'))
+    status = db.Column(db.String), # placed | done
     is_complete = db.Column(db.Boolean, default=False)
 
     def to_json(self):

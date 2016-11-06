@@ -146,11 +146,16 @@ def delete_user(user_id):
 def add_order(buyer_id, pet_id):
     order = ps.database.models.Order(
         pet_id=pet_id,
-        user_id=buyer_id
+        user_id=buyer_id,
+        status='completed'
     )
 
-    buyer = ps.database.models.User(id=buyer_id),
-    pet = ps.database.models.Pet(id=pet_id),
+    buyer = ps.database.models.User.query.filter(
+        ps.database.models.User.id == buyer_id
+    ).one()
+    pet = ps.database.models.Pet.query.filter(
+        ps.database.models.Pet.id == pet_id
+    ).one()
 
     if buyer.bank_account_balance_dollars < pet.cost:
         abort(422, 'Insufficient funds')
@@ -162,7 +167,7 @@ def add_order(buyer_id, pet_id):
 
     # update buyer's bank account and create the order
     buyer.bank_account_balance_dollars = newbal
-    db.sesion.add(buyer)
+    db.session.add(buyer)
     db.session.add(order)
     db.session.commit()
     datetime.time.sleep(300)

@@ -29,6 +29,7 @@ con.execute("CREATE TABLE user(id INTEGER PRIMARY KEY, "
             "bank_account_balance_dollars INTEGER, "
             "status char(100) NOT NULL)")
 
+
 # PET
 #
 con.execute("DROP TABLE IF EXISTS pet_status")
@@ -40,6 +41,11 @@ con.execute("INSERT into pet(name, pet_type, pet_status, cost) values ('Fluffy',
 con.execute("INSERT into pet(name, pet_type, pet_status, cost) values ('Fido', 'Dog', 'for sale', 25)")
 con.execute("INSERT into pet(name, pet_type, pet_status, cost) values ('Snaggletooth The Biter', 'Dog', 'for sale', 2)")
 
+
+# ORDERS
+#
+con.execute("DROP TABLE IF EXISTS store_order")
+con.execute("CREATE TABLE store_order( id INTEGER PRIMARY KEY AUTOINCREMENT, pet_id INTEGER, user_id INTEGER, status char(100) NOT NULL, is_complete INTEGER NOT NULL, FOREIGN KEY(pet_id) REFERENCES pet(id), FOREIGN KEY(user_id) REFERENCES user(id))")
 
 con.execute("INSERT into user(role, username, password, bank_account_balance_dollars, status) values (?, ?, ?, ?, ?)",  ("admin", "jlecount@sungevity.com", "somepass", 0, "non_customer"));
 con.execute("INSERT into user(role, username, password, bank_account_balance_dollars, status) values (?, ?, ?, ?, ?)",  ("admin", "gsandhu@sungevity.com", "sungevity", 0, "non_customer"));
