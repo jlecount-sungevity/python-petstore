@@ -78,25 +78,24 @@ def create_user(data):
 
     try:
         existing_by_username = ps.database.models.User.query.filter(
-            ps.database.models.User.username == username).one()
-        abort(400, "User with that username already exists")
+            ps.database.models.User.username == username
+        ).one()
     except Exception as e:
-        # hella ugly, but drops in here when user doesn't already exist.
-        user = ps.database.models.User(
-            username=username, role=role,
-            password=password,
-            bank_account_balance_dollars=bank_account_balance_dollars,
-            customer_status=customer_status
-        )
+        abort(400, "User with that username already exists")
+    user = ps.database.models.User(
+        username=username, role=role,
+        password=password,
+        bank_account_balance_dollars=bank_account_balance_dollars,
+        customer_status=customer_status
+    )
 
-        if id:
-            user.id = id
+    if id:
+        user.id = id
 
-        db.session.add(user)
-        db.session.commit()
+    db.session.add(user)
+    db.session.commit()
 
-        return user.to_json()
-
+    return user.to_json()
 
 def update_user(user_id, data):
     user = ps.database.models.User.query.filter(

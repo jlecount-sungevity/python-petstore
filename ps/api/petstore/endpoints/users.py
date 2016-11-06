@@ -50,7 +50,6 @@ class ListUserOrCreateNew(Resource):
         """
         from ps.database import models
         users = models.User.query.all()
-        import ipdb; ipdb.set_trace()
         if users:
            return users, 200
         else:
@@ -59,8 +58,13 @@ class ListUserOrCreateNew(Resource):
 
     @api.expect(userfields_for_creation)
     @api.header('Authorization', 'Authorization', required=True)
-    @api.doc(responses={403: 'Not Authorized'})
-    @api.response(201, 'Customer user successfully created.')
+    @api.doc(
+        responses={
+            403: 'Not Authorized',
+            400: 'Bad data (user already exists)',
+            201: 'Customer successfully created.'
+        }
+    )
     def post(self):
         """
         Creates a user.

@@ -20,13 +20,12 @@ class User(db.Model):
     customer_status = db.Column(db.String(100))
 
     def to_json(self):
-        print "Debug -- my role is {0}".format(self.role)
         return dict(
             id=self.id,
             username = self.username,
             role = self.role,
             bank_account_balance_dollars = self.bank_account_balance_dollars,
-            status=self.status
+            customer_status=self.customer_status
         )
 
 
