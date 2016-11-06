@@ -40,6 +40,7 @@ class NewOrderOrListStore(Resource):
         """
         Creates a new order
         """
+        auth_type = _authenticate(request)
         data = request.json
 
         order = add_order(data['user_id'], data['pet_id'])

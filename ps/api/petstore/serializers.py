@@ -46,6 +46,6 @@ order = api.model('Order', {
 
 neworder = api.model('Order', {
     'pet_id': fields.Integer(required=True, attribute='pet.id'),
-    'status': fields.String(required=False, description="valid values are completed | deleted", default="new"),
+    'status': fields.String(required=False, description="valid values are completed | deleted", default="completed"),
     'user_id': fields.Integer(required=True, attribute='user.id'),
 })

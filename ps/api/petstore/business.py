@@ -11,9 +11,10 @@ def create_pet(data):
     pet_type = data.get('pet_type')
     status = "for sale"
     pet = ps.database.models.Pet(name=name, pet_status=status,
-              cost=cost, pet_type=pet_type,
-              last_modified_by=1, added_at = datetime.datetime.now()
-              )
+                                 cost=cost, pet_type=pet_type,
+                                 last_modified_by=1,
+                                 added_at=datetime.datetime.now()
+                                 )
     db.session.add(pet)
     db.session.commit()
     return pet.to_json()
@@ -97,6 +98,7 @@ def create_user(data):
 
     return user.to_json()
 
+
 def update_user(user_id, data):
     user = ps.database.models.User.query.filter(
         ps.database.models.User.id == user_id
@@ -125,6 +127,7 @@ def update_user(user_id, data):
     db.session.add(user)
     db.session.commit()
 
+
 def get_orders():
     orders = ps.database.models.Order.query.all()
     if orders:
@@ -132,8 +135,10 @@ def get_orders():
     else:
         return [], 200
 
+
 def delete_order(order_id):
-    order = ps.database.models.Order.query.filter(ps.database.models.Order.id == order_id).one()
+    order = ps.database.models.Order.query.filter(
+        ps.database.models.Order.id == order_id).one()
     order.status = "deleted"
     db.session.add(order)
     db.session.commit()
@@ -146,6 +151,7 @@ def delete_user(user_id):
     user.customer_status = "unregistered"
     db.session.add(user)
     db.session.commit()
+
 
 def add_order(buyer_id, pet_id):
     order = ps.database.models.Order(
@@ -160,8 +166,18 @@ def add_order(buyer_id, pet_id):
         ps.database.models.Pet.id == pet_id
     ).one()
 
+    if pet.pet_status != 'for sale':
+        abort(404, 'pet no longer available for sale')
+
     if buyer.bank_account_balance_dollars < pet.cost:
-        abort(422, 'Insufficient funds')
+        abort(
+            422,
+            'Insufficient funds.  '
+            'You only have a balance of {0} dollars available'.format(
+                buyer.bank_account_balance_dollars
+            )
+        )
+
     newbal = buyer.bank_account_balance_dollars - pet.cost
 
     # BUG:
@@ -173,10 +189,11 @@ def add_order(buyer_id, pet_id):
     db.session.add(buyer)
     db.session.add(order)
     db.session.commit()
-    time.sleep(0.3) # 300 ms should be enough for some good race conditions.
+    time.sleep(0.3)  # 300 ms should be enough for some good race conditions.
 
     # update pet status
     pet.pet_status = 'sold'
     db.session.add(pet)
     db.session.commit()
+    print "Returning the order now"
     return order.to_json()
