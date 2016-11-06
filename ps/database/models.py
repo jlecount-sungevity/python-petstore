@@ -13,13 +13,14 @@ class Token(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100))
     role = db.Column(db.String(100))
+    username = db.Column(db.String(100))
     bank_account_balance_dollars = db.Column(db.Integer, default=200)
     password = db.Column(db.String(100))
-    status = db.Column(db.String(100))
+    customer_status = db.Column(db.String(100))
 
     def to_json(self):
+        print "Debug -- my role is {0}".format(self.role)
         return dict(
             id=self.id,
             username = self.username,
@@ -58,14 +59,14 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pet_id = db.Column(db.ForeignKey('pet.id'))
     user_id = db.Column(db.ForeignKey('user.id'))
-    status = db.Column(db.String), # placed | done
-    is_complete = db.Column(db.Boolean, default=False)
+    status = db.Column(db.String(100)) # completed | deleted
+    is_complete = db.Column(db.Boolean, default=True)
 
     def to_json(self):
         return dict(
             id=self.id,
-            pet_id=self.pet,
-            user_id=self.user,
+            pet_id=self.pet_id,
+            user_id=self.user_id,
             status=self.status,
             is_complete=self.is_complete
         )

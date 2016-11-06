@@ -19,10 +19,12 @@ class NewOrderOrListStore(Resource):
 
     @api.response(200, 'OK')
     @api.marshal_with(order, as_list=True)
+    @api.header('Authorization', 'Authorization', required=True)
     def get(self):
         """
         Lists all orders
         """
+        _authenticate(request, must_be_admin=True)
         return get_orders()
 
 
@@ -39,9 +41,8 @@ class NewOrderOrListStore(Resource):
         Creates a new order
         """
         data = request.json
-        print "Data: {0}".format(data)
 
-        order = add_order(data['user_id'], data['pet_id']),
+        order = add_order(data['user_id'], data['pet_id'])
         return order, 201
 
     @api.header('Authorization', 'Authorization', required=True)

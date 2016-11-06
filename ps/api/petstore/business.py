@@ -1,5 +1,6 @@
 import ps
 import datetime
+import time
 from ps.app import db
 from flask_restplus import abort
 
@@ -73,12 +74,11 @@ def create_user(data):
     username = data.get('username')
     password = data.get('password')
     bank_account_balance_dollars = data.get('bank_account_balance_dollars', 200)
-    status = 'registered'
+    customer_status = 'registered'
 
     try:
         existing_by_username = ps.database.models.User.query.filter(
             ps.database.models.User.username == username).one()
-        print "already exists -- gonna abort"
         abort(400, "User with that username already exists")
     except Exception as e:
         # hella ugly, but drops in here when user doesn't already exist.
@@ -86,7 +86,7 @@ def create_user(data):
             username=username, role=role,
             password=password,
             bank_account_balance_dollars=bank_account_balance_dollars,
-            status=status
+            customer_status=customer_status
         )
 
         if id:
@@ -99,20 +99,25 @@ def create_user(data):
 
 
 def update_user(user_id, data):
-    user = ps.database.models.User.query.filter(ps.database.models.User.id == user_id).one()
+    user = ps.database.models.User.query.filter(
+        ps.database.models.User.id == user_id
+    ).one()
+
+    if user.role == "admin":
+        abort(422, message="You may not update admin users.")
 
     em = data.get('username')
     if em:
         user.username = em
 
-    status = data.get('status')
-    if status:
-        if status not in ['sold', 'for sale', 'removed']:
+    customer_status = data.get('customer_status')
+    if customer_status:
+        if customer_status not in ['registered', 'unregistered']:
             abort(
                 422,
-                message="Valid statuses are 'sold', 'for sale' or 'removed'"
+                message="Valid statuses are 'registered' or 'unregistered'"
             )
-            user.status = status
+            user.customer_status = customer_status
 
     pw = data.get('password')
     if pw:
@@ -139,7 +144,7 @@ def delete_user(user_id):
     user = ps.database.models.User.query.filter(
         ps.database.models.User.id == user_id
     ).one()
-    user.status = "unregistered"
+    user.customer_status = "unregistered"
     db.session.add(user)
     db.session.commit()
 
@@ -149,7 +154,6 @@ def add_order(buyer_id, pet_id):
         user_id=buyer_id,
         status='completed'
     )
-
     buyer = ps.database.models.User.query.filter(
         ps.database.models.User.id == buyer_id
     ).one()
@@ -170,7 +174,7 @@ def add_order(buyer_id, pet_id):
     db.session.add(buyer)
     db.session.add(order)
     db.session.commit()
-    datetime.time.sleep(300)
+    time.sleep(0.3) # 300 ms should be enough for some good race conditions.
 
     # update pet status
     pet.pet_status = 'sold'

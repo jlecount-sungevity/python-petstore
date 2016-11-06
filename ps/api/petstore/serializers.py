@@ -5,9 +5,9 @@ user = api.model('User', {
     'id': fields.Integer(readOnly=True, description='The unique identifier of a user'),
     'username': fields.String(required=True, description='username'),
     'password': fields.String(required=True, description='password'),
-    'role': fields.String(required=True, attribute='role.id'),
+    'role': fields.String(required=True, description="admin or customer"),
     'bank_account_balance_dollars': fields.Integer(required=True, description='username'),
-    'status': fields.String(required=True, description="valid values: non_customer or registered or deleted")
+    'customer_status': fields.String(required=True, description="valid values: NONE or registered or deleted")
 })
 
 userfields_for_creation = api.model('User', {
@@ -39,12 +39,13 @@ newpet = api.model('Pet', {
 order = api.model('Order', {
     'id': fields.Integer(readOnly=True, description='The unique identifier of a user'),
     'pet': fields.Integer(required=True, attribute='pet.id'),
-    'status': fields.String(required=True, description="complete or deleted"),
+    'status': fields.String(required=True, description="valid values are: completed | deleted"),
     'is_complete': fields.Boolean(default=False),
     'user': fields.Integer(required=True, attribute='user.id'),
 })
 
 neworder = api.model('Order', {
     'pet_id': fields.Integer(required=True, attribute='pet.id'),
+    'status': fields.String(required=False, description="valid values are completed | deleted", default="new"),
     'user_id': fields.Integer(required=True, attribute='user.id'),
 })

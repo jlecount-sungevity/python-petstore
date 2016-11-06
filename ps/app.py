@@ -2,7 +2,6 @@ import logging.config
 
 import socket
 from logging import Formatter, FileHandler
-from logging.handlers import RotatingFileHandler
 
 from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
@@ -12,20 +11,17 @@ from ps.api.restplus import api
 app = Flask(__name__)
 db = SQLAlchemy()
 
-LOGGER = logging.getLogger('whatever')
-file_handler = FileHandler('test.log')
-handler = logging.StreamHandler()
-file_handler.setFormatter(Formatter(
-        '%(asctime)s %(levelname)s: %(message)s '
+def configure_logging(log_level):
+    LOGGER = logging.getLogger('whatever')
+    handler = logging.StreamHandler()
+    handler.setFormatter(
+        Formatter(
+            '%(asctime)s %(levelname)s: %(message)s '
             '[in %(pathname)s:%(lineno)d]'
-            ))
-handler.setFormatter(Formatter(
-        '%(asctime)s %(levelname)s: %(message)s '
-            '[in %(pathname)s:%(lineno)d]'
-            ))
-LOGGER.addHandler(file_handler)
-LOGGER.addHandler(handler)
-LOGGER.setLevel(logging.INFO)
+        )
+    )
+    LOGGER.addHandler(handler)
+    LOGGER.setLevel(log_level)
 
 def configure_app(flask_app):
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = settings.SQLALCHEMY_DATABASE_URI
@@ -37,6 +33,7 @@ def configure_app(flask_app):
 
 
 def initialize_app(flask_app):
+    configure_logging(logging.INFO)
     configure_app(flask_app)
 
     blueprint = Blueprint('/', __name__, url_prefix='/api')
