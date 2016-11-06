@@ -31,7 +31,7 @@ class NewOrderOrListStore(Resource):
     @api.header('Authorization', 'Authorization', required=True)
     @api.doc(responses={
         403: 'Not Authorized',
-        400: 'No such user or pet',
+        404: 'No such user or pet',
         422: 'Insufficient funds to purchase',
         201: 'Order created.'
     })

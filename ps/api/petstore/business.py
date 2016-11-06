@@ -159,12 +159,20 @@ def add_order(buyer_id, pet_id):
         user_id=buyer_id,
         status='completed'
     )
-    buyer = ps.database.models.User.query.filter(
-        ps.database.models.User.id == buyer_id
-    ).one()
-    pet = ps.database.models.Pet.query.filter(
-        ps.database.models.Pet.id == pet_id
-    ).one()
+
+    try:
+        buyer = ps.database.models.User.query.filter(
+            ps.database.models.User.id == buyer_id
+        ).one()
+    except:
+        abort(404, 'No customer with that ID!')
+
+    try:
+        pet = ps.database.models.Pet.query.filter(
+            ps.database.models.Pet.id == pet_id
+        ).one()
+    except:
+        abort(404, 'No pet with that ID!')
 
     if pet.pet_status != 'for sale':
         abort(404, 'pet no longer available for sale')
@@ -185,15 +193,21 @@ def add_order(buyer_id, pet_id):
     # transactions which means two buyers could totally buy the same pet.
 
     # update buyer's bank account and create the order
+    # we *should* have the balance check and the update in a transaction
+    # but since we don't, we open up the possibilities or race conditions.
+
+
     buyer.bank_account_balance_dollars = newbal
     db.session.add(buyer)
     db.session.add(order)
     db.session.commit()
+
     time.sleep(0.3)  # 300 ms should be enough for some good race conditions.
 
     # update pet status
     pet.pet_status = 'sold'
     db.session.add(pet)
     db.session.commit()
+
     print "Returning the order now"
     return order.to_json()
