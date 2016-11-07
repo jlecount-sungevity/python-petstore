@@ -60,7 +60,8 @@ class Token(Resource):
         from ps.database import models
         try:
             u = models.User.query.filter(
-                models.User.username == username and
+                models.User.username == username
+            ).filter(
                 models.User.password == password
             ).one()
             if u.role == 'admin':
