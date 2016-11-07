@@ -52,9 +52,14 @@ def initialize_app(flask_app):
     flask_app
 
 
-def main():
+def main(port):
     initialize_app(app)
-    app.run()
+    app.run(host='0.0.0.0', port=port)
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) <= 1:
+      port = 5000
+    else:
+      port = int(sys.argv[1])
+    main(port)

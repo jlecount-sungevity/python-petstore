@@ -11,9 +11,8 @@ user = api.model('User', {
 })
 
 userfields_for_creation = api.model('User', {
-    'username': fields.String(required=True, description='username')
-    'password': fields.String(required=True, description='password',
-                              default="my_strong_password"),
+    'username': fields.String(required=True, description='username'),
+    'password': fields.String(required=True, description='password', default="my_strong_password"),
     'bank_account_balance_dollars': fields.Integer(required=True,
                                                    description='username',
                                                    default=200),

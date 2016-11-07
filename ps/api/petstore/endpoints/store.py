@@ -53,7 +53,7 @@ class NewOrderOrListStore(Resource):
     })
     def delete(self, id):
         """
-        Deletes a user.
+        Deletes an order.
         """
         _authenticate(request)
         delete_order(id)
