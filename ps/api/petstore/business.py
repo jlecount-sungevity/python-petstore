@@ -45,6 +45,9 @@ def update_pet_status(pet_id, status):
     pet = ps.database.models.Pet.query.filter(
         ps.database.models.Pet.id == pet_id
     ).one()
+    if status == 'deleted' and pet.pet_status == 'sold':
+        abort(400, "Cannot delete a sold pet.")
+
     pet.pet_status = status
     db.session.add(pet)
     db.session.commit()
@@ -81,8 +84,10 @@ def create_user(data):
         existing_by_username = ps.database.models.User.query.filter(
             ps.database.models.User.username == username
         ).one()
-    except Exception as e:
         abort(400, "User with that username already exists")
+    except Exception as e:
+        pass # no such user exists
+
     user = ps.database.models.User(
         username=username, role=role,
         password=password,

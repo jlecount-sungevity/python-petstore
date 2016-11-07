@@ -44,6 +44,10 @@ class Token(Resource):
         except:
             traceback.print_exc()
 
+        # actual bug workaround -- not sure why this is the case
+        if type(username) == list:
+            username = username[0]
+
         if not client_id:
             abort(403, "missing client_id")
 
@@ -52,6 +56,7 @@ class Token(Resource):
 
         tokenvalue = self.create_token()
         role_value = 0
+
         from ps.database import models
         try:
             u = models.User.query.filter(
